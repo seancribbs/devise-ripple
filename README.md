@@ -15,6 +15,30 @@ So far, it is in a usable state *for me*, in the following environment:
  
 Note that it likely won't work with cutting-edge versions of Rails or Devise.
 
-Hope that it helps!
+**Don't forget to expose appropiate 'key' and 'id' properties in your model!**
 
-### This is work in progress - please do fork and contribute!
+### Example User model
+
+    class User
+      include Ripple::Document
+
+      devise :registerable, :confirmable :database_authenticatable, :recoverable, :validatable
+
+      property :name, String
+      property :email, String, :presence => true
+      property :password, String
+      property :password_confirmation, String
+  
+      timestamps!
+      
+      def key
+        email
+      end
+  
+      def id
+        email
+      end  
+    
+    end
+
+### That said, this is work in progress - please do fork and contribute!
