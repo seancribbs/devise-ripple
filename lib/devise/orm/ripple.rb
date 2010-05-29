@@ -26,9 +26,53 @@ module Devise
 
         module ClassMethods
           
+          def validates_uniqueness_of(*args)
+            # no-op right now
+          end
+          
           def find(*args)
-            puts "Entering find method with args => #{args}"
-            super(args[1][:conditions][:email]) if args[1][:conditions].include? :email
+            
+            def user_id_from_conditions(conditions)
+                
+              map = "
+                function(v) {
+                  if (v.values) {
+                    var v = Riak.mapValuesJson(v)[0];
+                    return (#{conditions.map { |k,v| "v.#{k} === '#{v}'" }.join(' && ')}) ? [v.email] : [];
+                  } else return [];
+                }
+              "
+              
+              uid = Riak::MapReduce.new(bucket.client).add(bucket).map(map, :keep => true).run
+                            
+            end
+            
+            case args.length
+            when 1 then
+              super(args[0])
+            when 2 then
+              cs = args[1][:conditions]
+              if cs.include? :email or cs.include? :id
+                super(cs[:email] || cs[:id])
+              else
+                uid = user_id_from_conditions(cs)
+                super(uid.first) unless uid.empty?
+              end
+            else
+              raise RuntimeError, "[devise-ripple] Giving up: didn't expect #{args.length} arguments!"
+            end
+            
+          end
+          
+        end
+        
+        module InstanceMethods
+          
+          def update_attributes(*args)
+            args.first.each do |k,v|
+              self.send("#{k}=", v)
+            end            
+            save
           end
                   
         end
