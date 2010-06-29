@@ -4,7 +4,7 @@ module Devise
       module Hook
         def devise_modules_hook!
           extend Schema
-          include ::Ripple::Document::Timestamps
+          include ::Ripple::Timestamps
           include Compatibility
           yield
           return unless Devise.apply_schema
@@ -82,7 +82,7 @@ module Devise
   end
 end
 
-Ripple::EmbeddedDocument::ClassMethods.class_eval do
+Ripple::Document::ClassMethods.class_eval do
   include Devise::Models
   include Devise::Orm::Ripple::Hook
 end
