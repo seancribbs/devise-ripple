@@ -15,7 +15,7 @@ module Devise
       module Schema
         include Devise::Schema
 
-        def apply_schema(name, type, options={})
+        def apply_devise_schema(name, type, options={})
           return unless Devise.apply_schema
           property name, :cast_as => type
         end        
@@ -29,9 +29,10 @@ module Devise
           def validates_uniqueness_of(*args)
             # no-op right now
           end
-          
+                    
           def find(*args)
             
+            # TODO from new Riak release start using provided Riak.mapByFields
             def user_id_from_conditions(conditions)
                 
               map = "
@@ -64,17 +65,6 @@ module Devise
             
           end
           
-        end
-        
-        module InstanceMethods
-          
-          def update_attributes(*args)
-            args.first.each do |k,v|
-              self.send("#{k}=", v)
-            end            
-            save
-          end
-                  
         end
         
       end
