@@ -17,7 +17,7 @@ module Devise
 
         def apply_devise_schema(name, type, options={})
           return unless Devise.apply_schema
-          property name, :cast_as => type
+          property name, type
         end        
       end
       
